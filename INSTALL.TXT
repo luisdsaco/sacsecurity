@@ -1,4 +1,8 @@
-For install the applications you must follow the following steps:
+For install the applications you must follow the following steps.
+
+Get the source code from the git repository:
+
+	git clone https://github.com/luisdsaco/sacsecurity.git
 
 In sacsecurity directory execute the following commands:
 
@@ -8,3 +12,5 @@ sudo ./install.sh
 Now the network will be disconnected when vpn goes down stopping any network traffic without vpn.
 
 You can connect the network again and work with or without the vpn.
+
+In order to test this, you can manually disconnect the vpn.
