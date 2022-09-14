@@ -5,4 +5,6 @@ In sacsecurity directory execute the following commands:
 sudo chmod ugo+x install.sh
 sudo ./install.sh
 
-Now the network will be disconnected when vpn is down stopping any network traffic without vpn.
+Now the network will be disconnected when vpn goes down stopping any network traffic without vpn.
+
+You can connect the network again and work with or without the vpn.
