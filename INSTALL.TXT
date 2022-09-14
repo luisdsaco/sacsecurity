@@ -1,0 +1,8 @@
+For install the applications you must follow the following steps:
+
+In sacsecurity directory execute the following commands:
+
+sudo chmod ugo+x install.sh
+sudo ./install.sh
+
+Now the network will be disconnected when vpn is down stopping any network traffic without vpn.
