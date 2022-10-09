@@ -3,6 +3,9 @@ For install the applications you must follow the following steps.
 Get the source code from the git repository:
 
 	git clone https://github.com/luisdsaco/sacsecurity.git
+	
+VPN KILLSWITCH
+--------------
 
 In sacsecurity directory execute the following commands:
 
@@ -14,3 +17,17 @@ Now the network will be disconnected when vpn goes down stopping any network tra
 You can connect the network again and work with or without the vpn.
 
 In order to test this, you can manually disconnect the vpn.
+
+KEYFINDER
+---------
+
+In sacsecurity directory execute the following commands:
+
+make install -C keyfinder
+
+You will be able to execute keyfinder with:
+
+~/keyfinder
+
+It is not very useful yet although... it really works!!!
+
