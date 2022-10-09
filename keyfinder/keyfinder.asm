@@ -45,31 +45,31 @@ global _start
 _start:
 
 ; Init Key
-	mov rcx, 0
-	mov rax, [key]
+	mov 	rcx, 0
+	mov 	rax, [key]
 	
 ; main loop	
 loop:
-	mov rbx, [testData + rcx]
-	cmp rax, rbx
-	jne NotFound
+	mov 	rbx, [testData + rcx]
+	cmp 	rax, rbx
+	jne 	NotFound
 
 ; print found message and exit program	
-	mov rdi, msgFound
-	call strlen
-	call printStr
-	jmp out
+	mov 	rdi, msgFound
+	call 	strlen
+	call 	printStr
+	jmp 	out
 	
 NotFound:
-	cmp bl, 0
-	je printNotFound
+	cmp 	bl, 0
+	je 	printNotFound
 	
-	inc rcx
-	jmp loop	
+	inc 	rcx
+	jmp 	loop	
 printNotFound:	
-	mov rdi, msgNotFound
-	call strlen
-	call printStr	
+	mov 	rdi, msgNotFound
+	call 	strlen
+	call 	printStr	
 	
 out:
 	mov	rax, SYS_exit
@@ -85,12 +85,12 @@ printStr:
 	ret
 
 strlen:
-	mov rcx, 0
+	mov 	rcx, 0
 .loop:
-	cmp byte [rdi + rcx], 0
-	je strret
-	inc rcx
-	jmp .loop
+	cmp 	byte [rdi + rcx], 0
+	je 	strret
+	inc 	rcx
+	jmp 	.loop
 strret:
 	ret
 	
