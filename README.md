@@ -10,4 +10,4 @@ There are several strategies to get this aim. This is the easier one but, probab
 
 It has been tested in Ubuntu, Arch linux (with Network Manager installed) and Kali linux.
 
-The next program is a tool written in x86-64 assembler that will find fastly passwords in strings and files. It is currently in development. You can see the source code at the directory keyfinder.
+The next program is a future testing tool written in x86-64 assembler that will find fastly passwords in strings and files. It is currently in development. You can see the source code at the directory keyfinder.
