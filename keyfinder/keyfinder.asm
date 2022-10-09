@@ -33,10 +33,12 @@ STDIN		equ	0
 STDOUT		equ	1
 STDERR		equ	2
 
-key		db	"password", 00
-msgFound	db	"Key found", 10, 00
-msgNotFound	db	"Key not found", 10, 00
-testData	db	"Hi guys, my name is Luis and my password is 1234", 00
+key		db	'password', 0
+msgFound	db	'Key found', 10, 0
+msgNotFound	db	'Key not found', 10, 0
+testData	db	'Hi guys, I am a politician and my password is 1234. '
+		db	'I am putting all the defense infrastructure at risk. '
+		db	'Because I am not very clever nobody should vote for me.', 0
 
 section		.text
 
