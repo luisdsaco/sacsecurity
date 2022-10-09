@@ -56,7 +56,6 @@ loop:
 
 ; print found message and exit program	
 	mov rdi, msgFound
-;	mov rcx, 10
 	call strlen
 	call printStr
 	jmp out
@@ -69,7 +68,6 @@ NotFound:
 	jmp loop	
 printNotFound:	
 	mov rdi, msgNotFound
-;	mov rcx, 14
 	call strlen
 	call printStr	
 	
