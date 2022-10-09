@@ -51,7 +51,7 @@ _start:
 	mov 	rax, [key]
 	
 ; main loop	
-loop:
+mainloop:
 	mov 	rbx, [testData + rcx]
 	cmp 	rax, rbx
 	jne 	NotFound
@@ -60,20 +60,20 @@ loop:
 	mov 	rdi, msgFound
 	call 	strlen
 	call 	printStr
-	jmp 	out
+	jmp 	endProgram
 	
 NotFound:
 	cmp 	bl, 0
 	je 	printNotFound
 	
 	inc 	rcx
-	jmp 	loop	
+	jmp 	mainloop	
 printNotFound:	
 	mov 	rdi, msgNotFound
 	call 	strlen
 	call 	printStr	
 	
-out:
+endProgram:
 	mov	rax, SYS_exit
 	mov	rdi, EXIT_SUCCESS
 	syscall
@@ -88,11 +88,11 @@ printStr:
 
 strlen:
 	mov 	rcx, 0
-.loop:
+.localloop:
 	cmp 	byte [rdi + rcx], 0
 	je 	strret
 	inc 	rcx
-	jmp 	.loop
+	jmp 	.localloop
 strret:
 	ret
 	
