@@ -28,55 +28,164 @@ SYS_read	equ	0
 SYS_write	equ	1
 SYS_open	equ	2
 SYS_close	equ	3
+SYS_lseek	equ	8
 
 STDIN		equ	0
 STDOUT		equ	1
 STDERR		equ	2
 
+O_RDONLY	equ	0
+
+SEEK_END	equ	2
+
+BUFF_SIZE	equ	128
+
+newLine		db	10, 0
 key		db	'password', 0
 msgFound	db	'Key found', 10, 0
 msgNotFound	db	'Key not found', 10, 0
-testData	db	'Hi guys, I am a politician and my password is 1234. '
-		db	'I am putting all the defense infrastructure at risk. '
-		db	'Because I am not very clever nobody should vote for me.', 0
+msgError	db	'Processing Error', 10, 0
+msgInit		db	'Reading file ', 0
+fileName	db	'from stdin', 10, 0
+
+section		.bss
+
+testData	resb	BUFF_SIZE + 8
 
 section		.text
 
-global _start
+global main
 
-_start:
+main:
 
-; Init Key
-	mov 	rcx, 0
-	mov 	rax, [key]
+; read command line options
+	mov 	r11, rdi	; argc
+	mov 	r12, rsi	; argv
+	mov	r13, 0
 	
-; main loop	
-mainloop:
-	mov 	rbx, [testData + rcx]
-	cmp 	rax, rbx
-	jne 	NotFound
+; init dynamic data
+ 
+ 	xor 	rax, rax
+	mov 	qword [testData + BUFF_SIZE], rax
 
-; print found message and exit program	
-	mov 	rdi, msgFound
+	cmp	r11, 2
+	jge	openFile
+	
+; initial message
+
+	mov 	rdi, msgInit
 	call 	strlen
 	call 	printStr
-	jmp 	endProgram
+
+	mov	rdi, fileName
+	call	strlen
+	call	printStr
 	
-NotFound:
-	cmp 	bl, 0
-	je 	printNotFound
+	xor	rax, rax
+	jmp	readFile		
+
+openFile:
+	mov	rdi, msgInit
+	call	strlen
+	call	printStr
+
+	mov	rdi, [r12 + 8]
+	call 	strlen
+	call	printStr	
+
+	mov 	rdi, newLine
+	call 	strlen
+	call 	printStr
+
 	
-	inc 	rcx
-	jmp 	mainloop	
+; Data acquisition
+; open file
+	mov	rax, SYS_open
+	mov 	rdi, [r12 + 8]
+	mov	rsi, O_RDONLY
+	syscall
+	
+	cmp	rax, 0
+	jl	fileError
+	mov	r13, rax	; file descriptor
+
+; read BUFF_SIZE bytes of data
+readFile:
+	mov	rdi, rax
+readBuff:
+	mov	rax, [testData + BUFF_SIZE]
+	mov	[testData], rax
+	mov	rax, SYS_read
+	mov	rsi, testData + 8
+	mov	rdx, BUFF_SIZE
+	syscall
+	
+	cmp	rax, 0
+	jl	fileError
+	
+
+; exec algorithm
+	mov 	rdx, [key]
+	call keyfinder
+
+; repeat until end of file
+	cmp	rax, BUFF_SIZE
+	je	readBuff	
+
 printNotFound:	
 	mov 	rdi, msgNotFound
 	call 	strlen
-	call 	printStr	
+	call 	printStr
+
 	
+; close the file
+closeFile:
+	cmp	r13, 0
+	je	endProgram
+	mov	rax, SYS_close
+	mov	rdi, r13
+	syscall
+
+
 endProgram:
 	mov	rax, SYS_exit
 	mov	rdi, EXIT_SUCCESS
 	syscall
+
+
+; Start processing
+
+keyfinder:
+	mov 	rcx, 0
+	
+; main loop	
+mainloop:
+	mov 	rbx, [testData + rcx]
+	cmp 	rdx, rbx
+	jne 	NotFound
+
+	cmp	rax, BUFF_SIZE
+	jl	printFound
+	cmp	r13, 0
+	jne	printFound
+	call 	clearStdinBuffer
+
+; print found message and exit program
+printFound:
+	mov 	rdi, msgFound
+	call 	strlen
+	call 	printStr
+
+	jmp 	endProgram
+	
+NotFound:
+	cmp 	rcx, rax
+	je 	outLoop
+	
+	inc 	rcx
+	jmp 	mainloop	
+outLoop:	
+	ret
 
 printStr:
 	mov	rax, SYS_write
@@ -95,4 +204,26 @@ strlen:
 	jmp 	.localloop
 strret:
 	ret
+
+clearStdinBuffer:
+	mov 	rax, SYS_read
+	mov 	rdi, STDIN
+	mov 	rsi, testData
+	mov 	rdx, 1
+	syscall
 	
+	cmp	rax, 0
+	je	clearStdinBufferRet
+	mov	al, [testData]
+	cmp	al, 10
+	jne	clearStdinBuffer
+clearStdinBufferRet:
+	ret
+
+fileError:
+	mov	rdi, msgError
+processError:
+	call	strlen
+	call	printStr
+	jmp	endProgram
+

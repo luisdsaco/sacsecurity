@@ -2,8 +2,9 @@
 
 ASM = nasm
 ASMFLAGS = -f elf64
-LINK = ld
+LINK = gcc -no-pie
 
+.PHONY: all clean install uninstall
 all: keyfinder
 
 keyfinder: keyfinder.o
@@ -14,7 +15,7 @@ keyfinder: keyfinder.o
 
 clean:
 	rm keyfinder *.o
-	
+
 install: all
 	cp keyfinder $(HOME)
 

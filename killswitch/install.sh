@@ -7,5 +7,5 @@ if [ -d '/etc/NetworkManager/dispatcher.d' ] ; then
     cp $VPNKS /etc/NetworkManager/dispatcher.d
     echo "vpn kill switch installed on Network Manager"
 else
-    echo "Vpn kill switch cannot be installed"
+    echo "vpn kill switch cannot be installed"
 fi

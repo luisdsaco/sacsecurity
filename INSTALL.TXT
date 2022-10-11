@@ -4,13 +4,13 @@ Get the source code from the git repository:
 
 	git clone https://github.com/luisdsaco/sacsecurity.git
 	
+	
 VPN KILLSWITCH
 --------------
 
 In sacsecurity directory execute the following commands:
 
-sudo chmod ugo+x install.sh
-sudo ./install.sh
+sudo make install -C killswitch
 
 Now the network will be disconnected when vpn goes down stopping any network traffic without vpn.
 
@@ -29,5 +29,5 @@ You will be able to execute keyfinder with:
 
 ~/keyfinder
 
-It is not very useful yet although... it really works!!!
+Keyfinder is not very useful, because it is in a development phase. But it really works!!!
 
