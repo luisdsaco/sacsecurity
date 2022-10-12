@@ -7,9 +7,10 @@ Usage:
 
 	keyfinder [file]
 	
-Without arguments it takes data from stdin that can be introduce from the keyboard.
-You can use redirections like:
+Without arguments it takes data from stdin that can be introduced from the keyboard.
+
+You can use unix pipes like:
 
 	ls -lisa | keyfinder
 	
-
+This turns keyfinder into a powerful analysis tool when used in shell scripts.
