@@ -21,13 +21,20 @@ In order to test this, you can manually disconnect the vpn.
 KEYFINDER
 ---------
 
-In sacsecurity directory execute the following commands:
+In sacsecurity directory execute the following commands to build and install keyfinder:
 
-make install -C keyfinder
+sudo make install -C keyfinder
+
+keyfinder will be installed in your /usr/local/bin directory. and you uninstall it with:
+
+sudo make uninstall -C keyfinder
 
 You will be able to execute keyfinder with:
 
-~/keyfinder
+keyfinder
 
-Keyfinder is not very useful, because it is in a development phase. But it really works!!!
+Keyfinder does not seem very useful, but it really works!!!
 
+ls -Ra / | keyfinder
+
+will determine if there is a file in your computer with "password" in its name. This can be a security breach that a hacker could exploit.
