@@ -26,8 +26,8 @@ keyfinder currently searches for the word "password" that is coded in text file 
 
 For software engineers this kind of tools can be useful to test if passwords are included in the code. This would be a bad programming practice if they want to write secure code.
 
-A tool like keyfinder can be use as a fast automatic testing one in environments of continuous delivery.
+A tool like keyfinder can be used as a fast automatic testing one in environments of continuous delivery.
 
-This tool is implemented fully in assembler as an example of the direct use of microprocessors to provide fast processing for high performace environments, however, it is important to notice that assembler is insecure by nature. For near production environments like those based on continuous delivery, a tool totally written in assembler should be used under your own risk.
+This tool is implemented fully in assembler as an example of the direct use of microprocessors to provide fast processing for high performace environments, however, it is important to notice that assembled software is insecure by nature because it is very error prone and the programmer must manage directly a lot things that can drive to security breaches. For near production environments like those based on continuous delivery, a tool totally written in assembler should be used under your own risk.
 
-
+This version manages the I/O through defined size memory blocks, the data processing is simple and it is done on the memory after gather the data. That is the reason why it can be initally considered secure enough. You can try it without special security measures.

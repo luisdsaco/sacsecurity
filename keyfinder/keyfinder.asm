@@ -21,47 +21,48 @@
 
 section		.data
 
-NULL		equ	0
-EXIT_SUCCESS	equ	0
-SYS_exit	equ	60
-SYS_read	equ	0
-SYS_write	equ	1
-SYS_open	equ	2
-SYS_close	equ	3
-SYS_lseek	equ	8
+NULL            equ	0
+EXIT_SUCCESS    equ	0
+SYS_exit        equ	60
+SYS_read        equ	0
+SYS_write       equ	1
+SYS_open        equ	2
+SYS_close       equ	3
+SYS_lseek       equ	8
 
-STDIN		equ	0
-STDOUT		equ	1
-STDERR		equ	2
+STDIN           equ	0
+STDOUT          equ	1
+STDERR          equ	2
 
-O_RDONLY	equ	0
+O_RDONLY        equ	0
 
-SEEK_END	equ	2
+SEEK_END        equ	2
 
-BUFF_SIZE	equ	128
+BUFF_SIZE       equ	128
 
-newLine		db	10, 0
-key		db	'password', 0
-msgFound	db	'Key found', 10, 0
-msgNotFound	db	'Key not found', 10, 0
-msgError	db	'Processing Error', 10, 0
-msgInit		db	'Reading file ', 0
-fileName	db	'from stdin', 10, 0
+newLine         db	10, 0
+key             db	'password', 0
+msgFound        db	'Key found', 10, 0
+msgNotFound     db	'Key not found', 10, 0
+msgError        db	'Processing Error', 10, 0
+msgInit         db	'Reading file ', 0
+fileName        db	'from stdin', 10, 0
 
-section		.bss
+section         .bss
 
-testData	resb	BUFF_SIZE + 8
+testData        resb	BUFF_SIZE + 8
 
-section		.text
+section         .text
 
-global main
+global          main
 
 main:
+        mov     rbp, rsp    ; for correct debugging
 
 ; read command line options
-	mov 	r11, rdi	; argc
-	mov 	r12, rsi	; argv
-	mov	r13, 0
+        mov     r11, rdi	; argc
+        mov     r12, rsi	; argv
+        mov     r13, 0
 	
 ; init dynamic data
  
@@ -126,7 +127,7 @@ readBuff:
 
 ; exec algorithm
 	mov 	rdx, [key]
-	call keyfinder
+	call   keyfinder
 
 ; repeat until end of file
 	cmp	rax, BUFF_SIZE
