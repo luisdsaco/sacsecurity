@@ -31,3 +31,7 @@ A tool like keyfinder can be used as a fast automatic testing one in environment
 This tool is implemented fully in assembler as an example of the direct use of microprocessors to provide fast processing for high performace environments, however, it is important to notice that assembled software is insecure by nature because it is very error prone and the programmer must manage directly a lot things that can drive to security breaches. For near production environments like those based on continuous delivery, a tool totally written in assembler should be used under your own risk.
 
 This version manages the I/O through defined size memory blocks, the data processing is simple and it is done on the memory after gathering the data. That is the reason why it can be initally considered secure enough. You can try it without special security measures.
+
+# pinfinder
+
+Pinfinder is a evolution of keyfinder that searches for numeric pins with four digits. All security considerations about keyfinder must be taken into account when using pinfinder.

@@ -1,10 +1,10 @@
 ;
-; Module: keyfinder.asm
+; Module: pinfinder.asm
 ; Version: 0.0.1a
 ;
 ; Program to search for passwords in strings
 ;
-; (C) 2017-2022 Luis Díaz Saco
+; (C) 2022 Luis Díaz Saco
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU Affero General Public License as published
@@ -41,17 +41,19 @@ SEEK_END        equ	2
 BUFF_SIZE       equ	128     ; size of i/o buffer
 
 newLine         db	10, 0
-key             db	'password', 0
+key             db	'1234', 0
 msgFound        db	'Key found', 10, 0
 msgNotFound     db	'Key not found', 10, 0
 msgError        db	'Processing Error', 10, 0
 msgInit         db	'Reading file ', 0
-fileName        db	'from stdin', 10, 0
+noFileName      db	'from stdin', 10, 0
+
+cmdlinePin      db      '-pin', 0
 
 section         .bss
 
 
-testData        resb	BUFF_SIZE + 8  ; reserve processing buffer
+testData        resb	BUFF_SIZE + 4  ; reserve processing buffer
 
 section         .text
 
@@ -68,27 +70,80 @@ main:
         push    rbp
         mov     rbp, rsp    ; for correct debugging
 
-	push	rbx
-	push	r12
-	push	r13
-	push	r14
-	push	r15
-
+        push    r12         ; reserved for cmdline index
+        push    r13         ; reserved for file descriptor
+        push    r14         ; reserved for argc
+        push    r15         ; reserved for argv
+        push    rbx
+        
 ; read command line options
         mov     r14, rdi    ; argc
         mov     r15, rsi    ; argv
-        mov     r13, STDIN  ; save default file descriptor in r13
+        mov     r13, STDIN  ; save default file descriptor in r8
 	
 ; Set the last 8 bytes of the i/o buffer to 0
 
-        xor     rax, rax    ; rax = 0
-        mov     qword [testData + BUFF_SIZE], rax
+        xor     eax, eax    ; eax = 0
+        mov     dword [testData + BUFF_SIZE], eax
 
-; Determine if there are input parameteres
+; Determine if there are input parameters
 
-	mov	r12, 1
-        cmp     r14, 2      ; if argc >= 2 then openFile
-        jge     openFile
+        mov     rax, 0
+        mov     rcx, 1
+        cmp     r14, rcx
+        jle     .notCommand
+        ; if argc > 1 then search for -pin
+        ; compare argv[1] with -pin  if not rax <> 0 and return
+        mov     eax, dword [cmdlinePin]
+        ; rbx = argv[1]
+        mov     rbx, [r15 + 8*rcx]
+        mov     edx, dword [rbx]
+        cmp     eax, edx
+        jne     .notCommand
+        ; make sure -pin is 4 bytes long
+        mov     al, [rbx + 4]
+        cmp     al, 0
+        jne     fileError   ; command has more than 4 characters
+        ; if -pin exists and argc == 2 then error
+        ; rbx = argv [2]
+        inc     rcx
+        cmp     r14, 3
+        jl      fileError
+        ; if -pin exists argc == 2 but pin size is not 4 then error
+        mov     rbx, [r15 +8*rcx]
+        cmp     byte [rbx + 4] , 0
+        jne     fileError   ; pin has more than 4 characters
+        ; check the pin for numbers
+        push    rcx
+        mov     rcx, 4
+.cmploop:
+        cmp     byte [rbx + rcx -1], 0x30
+        jl      fileError
+        cmp     byte [rbx + rcx -1], 0x39
+        jg      fileError
+        loop    .cmploop
+
+        pop     rcx
+        inc     rcx
+
+        ; return the pin in edx and exit with status in eax
+        mov     eax, [rbx]
+        mov     [key], eax
+              
+        mov     rax, 0
+        cmp     r14, 4
+        jl     .notCommand
+        mov     eax, 1
+        mov     rbx, [r15 +8*rcx]
+               
+        
+.notCommand:
+
+;-------------------------------------------------------------
+
+        mov     r12, rcx
+        cmp     eax, 0      ; if there is a filename then openFile
+        jne     openFile
 	
 ; print initial message and without opening a file
 
@@ -97,8 +152,8 @@ main:
 	call 	strlen
 	call 	printStr
 
-        ; printStr(fileName,strlen(fileName))
-	mov	rdi, fileName
+        ; printStr(noFileName,strlen(noFileName))
+	mov	rdi, noFileName
 	call	strlen
 	call	printStr
 
@@ -106,14 +161,16 @@ main:
 	xor	rax, rax
 	jmp	readFile		
 
-openFile:
+openFile:     
+        
+
         ; printStr(msgInit,strlen(msgInit))
 	mov	rdi, msgInit
 	call	strlen
 	call	printStr
 
-        ; printStr(argv[1],strlen(argv[1]))
-	mov	rdi, [r15 + 8*r12]
+        ; printStr(argv[x],strlen(argv[x]))
+	mov	rdi, rbx
 	call 	strlen
 	call	printStr	
 
@@ -124,15 +181,15 @@ openFile:
 
 	
 ; Data acquisition
-        ; rax = SYS_open(argv[1], O_RDONLY)
-	mov	rax, SYS_open
-	mov 	rdi, [r15 + 8*r12]
-	mov	rsi, O_RDONLY
-	syscall
+        ; rax = SYS_open(argv[x], O_RDONLY)
+        mov	rax, SYS_open
+        mov     rdi, rbx
+        mov	rsi, O_RDONLY
+        syscall
 	
-	cmp	rax, 0         ; if error then fileError
-	jl	fileError
-	mov	r13, rax       ; save file descriptor in r13
+        cmp	rax, 0         ; if error then fileError
+        je	fileError
+        mov	r13, rax       ; save file descriptor in r8
 
 ; read BUFF_SIZE bytes of data
 readFile:
@@ -144,7 +201,7 @@ readBuff:
 
         ; read BUFF_SIZE bytes from the file
 	mov	rax, SYS_read
-	mov	rsi, testData + 8
+	mov	rsi, testData + 4
 	mov	rdx, BUFF_SIZE
 	syscall
 	
@@ -153,9 +210,8 @@ readBuff:
 	
 
 ; exec algorithm rdx stores the word password in its 64 bits
-	mov 	rdx, [key]
-	call   keyfinder
-
+	mov 	edx, [key]
+	call   pinfinder
         cmp     rbx, 0
         je      closeFile
 
@@ -178,21 +234,22 @@ closeFile:
         mov     rax, SYS_close  ; else close before end 
         mov     rdi, r13
         syscall
-
-	inc     r12
+        
+        inc     r12
         cmp     r14, r12
         jle     endProgram
+        mov     rbx, [r15 +8*r12]
         jmp     openFile
 
 ; exit without error
 endProgram:
-
-	pop	r15
-	pop	r14
-	pop	r13
-	pop	r12
-	pop	rbx
-
+; restore the preserved registers, return value to rax and exit
+        pop     rbx
+        pop     r15
+        pop     r14
+        pop     r13
+        pop     r12
+        
         xor     rax,rax
         leave
         ret
@@ -201,22 +258,22 @@ endProgram:
 ; Functions
 ; -----------------------------------
 
-; Function: keyfinder
+; Function: pinfinder
 ; Description: search for the 64 bits key in the processing buffer
 ;   if found then print a message and end program
-; Inputs: rdx = key, rax = number of read bytes,
+; Inputs: edx = key, rax = number of read bytes,
 ;   r13 = file descriptor
-; Outputs: None
+; Outputs: rbx = 0 if pin found else rbx = 1
 ; Start processing
 
-keyfinder:
+pinfinder:
 	mov 	rcx, 0    ; init index
 	
 ; main loop	
+        lea     rbx, testData
 .mainloop:
-	mov 	rbx, [testData + rcx]
-	cmp 	rdx, rbx          ; if key is not found
-	jne 	.NotFound          ; then NotFound
+        cmp     edx, [rbx + rcx]    ; if key is not found
+        jne     .NotFound            ; then NotFound
 
 	cmp	rax, BUFF_SIZE     ; if buffer is fully processed
 	jl	.printFound         ; then printFound
@@ -248,6 +305,7 @@ keyfinder:
 ; Function: printStr
 ; Description: print a string on SDTOUT
 ; Inputs: rcx = size, rdi = pointer
+; Outputs: None
 
 printStr:
 	mov	rax, SYS_write
@@ -261,6 +319,7 @@ printStr:
 ; Function: strlen
 ; Description: get the size of a string
 ; Inputs: rdi = pointer
+; Outputs: rcx = string size
 
 strlen:
 	mov 	rcx, 0

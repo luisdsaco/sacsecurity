@@ -1,5 +1,5 @@
 
-SUBDIRS = killswitch keyfinder
+SUBDIRS = killswitch keyfinder pinfinder
 
 
 .PHONY: subdirs $(SUBDIRS)
