@@ -1,5 +1,5 @@
 #!/bin/sh
 
-if [ "$2" == "vpn-down" ] ; then
+if [ "$2" = "vpn-down" ] ; then
     nmcli dev disconnect $DEVICE_IFACE
 fi
